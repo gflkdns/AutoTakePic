@@ -53,6 +53,7 @@ public class AutoPicView extends View {
     private static final float smile_circle_radius = 1.5f;
     private String showText = "hello word!";
     private int circle_index;
+    private Sensor mSensor;
 
     public AutoPicView(Context context) {
         this(context, null, 0);
@@ -187,7 +188,18 @@ public class AutoPicView extends View {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         //取消重力感应的监听
-        mSensorManager.unregisterListener(mSensorEventListener);
+        mSensorManager.unregisterListener(mSensorEventListener, mSensor);
+    }
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        if (visibility == GONE) {
+            //取消重力感应的监听
+            mSensorManager.unregisterListener(mSensorEventListener, mSensor);
+        } else {
+            mSensorManager.registerListener(mSensorEventListener, mSensor, SensorManager.SENSOR_DELAY_UI);
+        }
     }
 
     public void start(TakePicListener listener) {
@@ -196,8 +208,7 @@ public class AutoPicView extends View {
         mSensorManager = (SensorManager) this.getContext().getSystemService(Context.SENSOR_SERVICE);
         //注册监听器
         //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
-        mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_UI);
-
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         mPicListener = listener;
     }
 
