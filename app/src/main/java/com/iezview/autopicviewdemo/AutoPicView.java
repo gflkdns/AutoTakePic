@@ -27,7 +27,7 @@ public class AutoPicView extends View {
      * 顺时针
      */
     public static final int DIRECTION_CLOCKWISEROTATE = 1;
-    private final SensorManager mSensorManager;
+    private SensorManager mSensorManager;
 
     //view的高宽
     private int mViewWidth;
@@ -64,11 +64,6 @@ public class AutoPicView extends View {
 
     public AutoPicView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        //得到SensorManager对象
-        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        //注册监听器
-        //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
-        mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_UI);
         initAutoPic();
     }
 
@@ -196,6 +191,13 @@ public class AutoPicView extends View {
     }
 
     public void start(TakePicListener listener) {
+
+        //得到SensorManager对象
+        mSensorManager = (SensorManager) this.getContext().getSystemService(Context.SENSOR_SERVICE);
+        //注册监听器
+        //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_UI);
+
         mPicListener = listener;
     }
 
