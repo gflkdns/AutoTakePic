@@ -74,7 +74,7 @@ public class AutoPicView extends View {
         circlePaint = new Paint();
         circlePaint.setColor(Color.WHITE);
         circlePaint.setStyle(Paint.Style.STROKE);
-        paintwidth = 4;
+        paintwidth = 1;
         circlePaint.setStrokeWidth(paintwidth);
 
         outPointPaint = new Paint();
@@ -86,7 +86,7 @@ public class AutoPicView extends View {
         inPointPaint.setStyle(Paint.Style.FILL);
 
         linePaint = new Paint();
-        linePaint.setColor(Color.CYAN);
+        linePaint.setColor(Color.YELLOW);
         linePaint.setStyle(Paint.Style.FILL);
         linePaint.setStrokeWidth(5);
 
@@ -119,7 +119,7 @@ public class AutoPicView extends View {
 //            //竖线
 //            canvas.drawLine(mViewWidth / 2, mViewHeight / 4, mViewWidth / 2, mViewHeight / 4 * 3, linePaint);
 //        }
-        float pointradius = paintwidth * 2;
+        float pointradius = paintwidth * 10;
         //画一个透明的实心圆
 //        {
 //            float sxRadius = ((mViewHeight > mViewWidth ? mViewWidth : mViewHeight) - pointradius * 2) / 16;
@@ -169,12 +169,12 @@ public class AutoPicView extends View {
                 }
                 case 1: {
                     // draw in
-                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - (radius / smile_circle_radius), 10, linePaint);
+                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - (radius / smile_circle_radius), pointradius, linePaint);
                     break;
                 }
                 case 2: {
                     // draw out
-                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - radius, 10, linePaint);
+                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - radius, pointradius, linePaint);
                     break;
                 }
             }

@@ -2,6 +2,7 @@ package com.iezview.autopicviewdemo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,20 +17,21 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         picView = (AutoPicView) findViewById(R.id.autopicview);
         show_tishi = (TextView) findViewById(R.id.show_tishi);
+        show_tishi.setText("请调整");
         picView.start(new AutoPicView.TakePicListener() {
             @Override
             public void canTakePic() {
-                Toast.makeText(MainActivity.this, "我要拍照啦！！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "  咔嚓！", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void yourPhonePerfect() {
-                show_tishi.setText("围模型圆周运动拍照");
+                show_tishi.setVisibility(View.GONE);
             }
 
             @Override
             public void placeAdjustYourPhone() {
-                show_tishi.setText("请调整");
+                show_tishi.setVisibility(View.VISIBLE);
             }
         });
     }
