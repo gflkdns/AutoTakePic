@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void yourPhonePerfect() {
-                show_tishi.setText("简直完美");
+                show_tishi.setText("围模型圆周运动拍照");
             }
 
             @Override
