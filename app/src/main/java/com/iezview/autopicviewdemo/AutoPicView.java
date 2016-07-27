@@ -167,17 +167,17 @@ public class AutoPicView extends View {
             canvas.rotate(x, cx, cy);
             //画一个不安分的小球
 
-            switch (circle_index){
-                case 0:{
+            switch (circle_index) {
+                case 0: {
                     //not draw
                     break;
                 }
-                case 1:{
+                case 1: {
                     // draw in
-                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - ( radius / smile_circle_radius), 10, linePaint);
+                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - (radius / smile_circle_radius), 10, linePaint);
                     break;
                 }
-                case 2:{
+                case 2: {
                     // draw out
                     canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - radius, 10, linePaint);
                     break;
@@ -217,7 +217,7 @@ public class AutoPicView extends View {
                 if (-(67.5f - 5) > y && y > -(67.5f + 5)) {
                     //在可拍摄区间内，且，没有拍摄过
                     mPicListener.yourPhonePerfect();
-                    circle_index=2;
+                    circle_index = 2;
                     for (int i = 0; i < OUTPOINTS.length; i++) {
                         if (x < OUTPOINTS[i].getEnd() && x > OUTPOINTS[i].getStart() //角度合适
                                 && !OUTPOINTS[i].ispic()) {                            //没有拍过
@@ -225,10 +225,9 @@ public class AutoPicView extends View {
                             mPicListener.canTakePic();
                         }
                     }
-                }
-                else if (-(45f - 5) > y && y > -(45f + 5)) {
+                } else if (-(45f - 5) > y && y > -(45f + 5)) {
                     //在可拍摄区间内，且，没有拍摄过
-                    circle_index=1;
+                    circle_index = 1;
                     mPicListener.yourPhonePerfect();
                     for (int i = 0; i < OUTPOINTS.length; i++) {
                         if (x < INPOINTS[i].getEnd() && x > INPOINTS[i].getStart() //角度合适
@@ -237,10 +236,9 @@ public class AutoPicView extends View {
                             mPicListener.canTakePic();
                         }
                     }
-                }
-               else{
+                } else {
                     mPicListener.placeAdjustYourPhone();
-                    circle_index=0;
+                    circle_index = 0;
                 }
             }
             postInvalidate();
