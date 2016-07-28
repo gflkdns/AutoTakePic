@@ -5,8 +5,6 @@ import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -28,7 +26,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -39,9 +36,13 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.view.annotation.Event;
+import org.xutils.x;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -186,12 +187,99 @@ public class Camera2Fragment extends Fragment {
             }
         }
     };
+    private int uploadindex;
 
+    @Event(value = {R.id.button_upload, R.id.button_restart, R.id.button_pause}, type = View.OnClickListener.class)
+    private void onclick(final View view) {
+        final File[] imgs = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).listFiles();
+        if (view.getId() == R.id.button_upload) {
+            uploadindex = 0;
+            if (imgs.length < 24) {
+                Toast.makeText(getActivity(), "请完成拍摄之后上传！", Toast.LENGTH_SHORT).show();
+                return;
+            }
+//            String url = "http://192.168.11.15/api//uploadAll/";
+            String url = "http://192.168.11.15/api/upload";
+            Log.d(TAG, "imgs.length" + imgs.length);
+            String id = System.currentTimeMillis() + "";
+            for (File img : imgs) {
+                RequestParams parme = new RequestParams(url);
+                parme.addBodyParameter("id", id);
+                parme.addBodyParameter("file", img);
+                x.http().post(parme, new Callback.ProgressCallback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        Button button = (Button) view;
+                        button.setText((++uploadindex) + "/" + 24);
+                        Log.d(TAG, "onSuccess");
+                        if (uploadindex == 24) {
+                            button.setText("完成");
+                            for (File file :
+                                    imgs) {
+                                if (file.isFile()) {
+                                    file.delete();
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable ex, boolean isOnCallback) {
+                        Toast.makeText(getActivity(), "onError", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, ex.toString());
+                    }
+
+                    @Override
+                    public void onCancelled(CancelledException cex) {
+                        Log.d(TAG, "onCancelled");
+                    }
+
+                    @Override
+                    public void onFinished() {
+                        Log.d(TAG, "onFinished");
+                    }
+
+                    @Override
+                    public void onWaiting() {
+                        Log.d(TAG, "onWaiting");
+                    }
+
+                    @Override
+                    public void onStarted() {
+                        Log.d(TAG, "onStarted");
+                    }
+
+                    @Override
+                    public void onLoading(long total, long current, boolean isDownloading) {
+                        Log.d(TAG, "onLoading");
+                    }
+                });
+            }
+        } else if (view.getId() == R.id.button_restart) {
+            Log.d(TAG, "重新开始！");
+            for (File file :
+                    imgs) {
+                if (file.isFile()) {
+                    file.delete();
+                }
+            }
+            Log.d(TAG, "删除文件成功");
+            picView.reStart();
+        } else if (view.getId() == R.id.button_pause) {
+            Button button = (Button) getActivity().findViewById(R.id.button_pause);
+            if (picView.pause()) {
+                button.setText("暂停");
+            } else {
+                button.setText("继续");
+            }
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_camera2, null);
+        x.view().inject(this, v);
         findview(v);
         //初始化拍照的声音
         ringtone = RingtoneManager.getRingtone(getActivity(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
@@ -207,7 +295,6 @@ public class Camera2Fragment extends Fragment {
         picView.start(new AutoPicView.TakePicListener() {
             @Override
             public void canTakePic() {
-                Toast.makeText(getActivity(), "  咔嚓！", Toast.LENGTH_SHORT).show();
                 picOnClickListener.onClick(null);
             }
 

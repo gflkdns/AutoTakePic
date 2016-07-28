@@ -11,14 +11,18 @@ import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.Collections;
+
 /**
  * 拍照引导控件（other）
  */
 public class AutoPicView extends View {
+
+    boolean idcanpic;
     //角度
     private static final float angle = 30;
-    private static final Point[] INPOINTS = Point.initPoint(30, 6);
-    private static final Point[] OUTPOINTS = Point.initPoint(30, 6);
+    private static final Point[] INPOINTS = Point.initPoint(angle, 4);
+    private static final Point[] OUTPOINTS = Point.initPoint(angle, 4);
     /**
      * 逆时针
      */
@@ -48,7 +52,23 @@ public class AutoPicView extends View {
     private float mChaildcx;
     private float mChaildcy;
 
-    private TakePicListener mPicListener;
+    private TakePicListener mPicListener = new TakePicListener() {
+
+        @Override
+        public void canTakePic() {
+
+        }
+
+        @Override
+        public void yourPhonePerfect() {
+
+        }
+
+        @Override
+        public void placeAdjustYourPhone() {
+
+        }
+    };
     //这个值大于0小于1
     private static final float smile_circle_radius = 1.5f;
     private String showText = "hello word!";
@@ -66,6 +86,12 @@ public class AutoPicView extends View {
     public AutoPicView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAutoPic();
+        //得到SensorManager对象
+        mSensorManager = (SensorManager) this.getContext().getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager.registerListener(mSensorEventListener, mSensor, SensorManager.SENSOR_DELAY_UI);
+        //注册监听器
+        //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
     }
 
     /**
@@ -73,7 +99,7 @@ public class AutoPicView extends View {
      */
     private void initAutoPic() {
         circlePaint = new Paint();
-        circlePaint.setColor(Color.WHITE);
+        circlePaint.setColor(Color.parseColor("#f7f7f7"));
         circlePaint.setStyle(Paint.Style.STROKE);
         paintwidth = 1;
         circlePaint.setStrokeWidth(paintwidth);
@@ -194,6 +220,8 @@ public class AutoPicView extends View {
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
+        if (mSensorManager == null)
+            return;
         if (visibility == GONE) {
             //取消重力感应的监听
             mSensorManager.unregisterListener(mSensorEventListener, mSensor);
@@ -202,14 +230,13 @@ public class AutoPicView extends View {
         }
     }
 
-    public void start(TakePicListener listener) {
-
-        //得到SensorManager对象
-        mSensorManager = (SensorManager) this.getContext().getSystemService(Context.SENSOR_SERVICE);
-        //注册监听器
-        //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        mPicListener = listener;
+    public void reStart() {
+        for (Point point : INPOINTS) {
+            point.setIspic(false);
+        }
+        for (Point point : OUTPOINTS) {
+            point.setIspic(false);
+        }
     }
 
     private float x;
@@ -234,8 +261,10 @@ public class AutoPicView extends View {
                     for (int i = 0; i < OUTPOINTS.length; i++) {
                         if (x < OUTPOINTS[i].getEnd() && x > OUTPOINTS[i].getStart() //角度合适
                                 && !OUTPOINTS[i].ispic()) {                            //没有拍过
-                            OUTPOINTS[i].setIspic(true);
-                            mPicListener.canTakePic();
+                            if (idcanpic) {
+                                OUTPOINTS[i].setIspic(true);
+                                mPicListener.canTakePic();
+                            }
                         }
                     }
                 } else if (-(45f - 5) > y && y > -(45f + 5)) {
@@ -245,8 +274,10 @@ public class AutoPicView extends View {
                     for (int i = 0; i < OUTPOINTS.length; i++) {
                         if (x < INPOINTS[i].getEnd() && x > INPOINTS[i].getStart() //角度合适
                                 && !INPOINTS[i].ispic()) {                            //没有拍过
-                            INPOINTS[i].setIspic(true);
-                            mPicListener.canTakePic();
+                            if (idcanpic) {
+                                INPOINTS[i].setIspic(true);
+                                mPicListener.canTakePic();
+                            }
                         }
                     }
                 } else {
@@ -261,6 +292,16 @@ public class AutoPicView extends View {
         public void onAccuracyChanged(Sensor sensor, int i) {
         }
     };
+
+    public boolean pause() {
+
+        idcanpic = !idcanpic;
+        return idcanpic;
+    }
+
+    public void start(TakePicListener takePicListener) {
+        mPicListener = takePicListener;
+    }
 
     interface TakePicListener {
         void canTakePic();
