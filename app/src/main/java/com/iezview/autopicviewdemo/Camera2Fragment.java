@@ -194,7 +194,7 @@ public class Camera2Fragment extends Fragment {
         final File[] imgs = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).listFiles();
         if (view.getId() == R.id.button_upload) {
             uploadindex = 0;
-            if (imgs.length < 24) {
+            if (imgs.length < 48) {
                 Toast.makeText(getActivity(), "请完成拍摄之后上传！", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -202,59 +202,7 @@ public class Camera2Fragment extends Fragment {
             String url = "http://192.168.11.15/api/upload";
             Log.d(TAG, "imgs.length" + imgs.length);
             String id = System.currentTimeMillis() + "";
-            for (File img : imgs) {
-                RequestParams parme = new RequestParams(url);
-                parme.addBodyParameter("id", id);
-                parme.addBodyParameter("file", img);
-                x.http().post(parme, new Callback.ProgressCallback<String>() {
-                    @Override
-                    public void onSuccess(String result) {
-                        Button button = (Button) view;
-                        button.setText((++uploadindex) + "/" + 24);
-                        Log.d(TAG, "onSuccess");
-                        if (uploadindex == 24) {
-                            button.setText("完成");
-                            for (File file :
-                                    imgs) {
-                                if (file.isFile()) {
-                                    file.delete();
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable ex, boolean isOnCallback) {
-                        Toast.makeText(getActivity(), "onError", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, ex.toString());
-                    }
-
-                    @Override
-                    public void onCancelled(CancelledException cex) {
-                        Log.d(TAG, "onCancelled");
-                    }
-
-                    @Override
-                    public void onFinished() {
-                        Log.d(TAG, "onFinished");
-                    }
-
-                    @Override
-                    public void onWaiting() {
-                        Log.d(TAG, "onWaiting");
-                    }
-
-                    @Override
-                    public void onStarted() {
-                        Log.d(TAG, "onStarted");
-                    }
-
-                    @Override
-                    public void onLoading(long total, long current, boolean isDownloading) {
-                        Log.d(TAG, "onLoading");
-                    }
-                });
-            }
+            uploadimg((Button) view, imgs, url, id);
         } else if (view.getId() == R.id.button_restart) {
             Log.d(TAG, "重新开始！");
             for (File file :
@@ -273,6 +221,63 @@ public class Camera2Fragment extends Fragment {
                 button.setText("继续");
             }
         }
+    }
+
+    private void uploadimg(final Button view, final File[] imgs, final String url, final String id) {
+        RequestParams parme = new RequestParams(url);
+        parme.addBodyParameter("id", id);
+        parme.addBodyParameter("file", imgs[uploadindex]);
+        x.http().post(parme, new Callback.ProgressCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                Button button = view;
+                button.setText((++uploadindex) + "/" + 48);
+                Log.d(TAG, "onSuccess");
+                if (uploadindex == 48) {
+                    button.setText("完成");
+                    for (File file :
+                            imgs) {
+                        if (file.isFile()) {
+                            file.delete();
+                        }
+                    }
+                } else {
+                    uploadimg(view, imgs, url, id);
+                }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Toast.makeText(getActivity(), "onError", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, ex.toString());
+                view.setText("中断");
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+                Log.d(TAG, "onCancelled");
+            }
+
+            @Override
+            public void onFinished() {
+                Log.d(TAG, "onFinished");
+            }
+
+            @Override
+            public void onWaiting() {
+                Log.d(TAG, "onWaiting");
+            }
+
+            @Override
+            public void onStarted() {
+                Log.d(TAG, "onStarted");
+            }
+
+            @Override
+            public void onLoading(long total, long current, boolean isDownloading) {
+                Log.d(TAG, "onLoading");
+            }
+        });
     }
 
     @Nullable
@@ -346,7 +351,7 @@ public class Camera2Fragment extends Fragment {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            File file = new File(dir, System.currentTimeMillis() + ".jpg");
+            File file = new File(dir, "15度" + System.currentTimeMillis() + ".jpg");
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(file);

@@ -20,7 +20,7 @@ public class AutoPicView extends View {
 
     boolean idcanpic;
     //角度
-    private static final float angle = 30;
+    private static final float angle = 15;
     private static final Point[] INPOINTS = Point.initPoint(angle, 4);
     private static final Point[] OUTPOINTS = Point.initPoint(angle, 4);
     /**
