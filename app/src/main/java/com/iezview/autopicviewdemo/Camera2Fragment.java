@@ -193,7 +193,9 @@ public class Camera2Fragment extends Fragment {
 
     @Event(value = {R.id.button_upload, R.id.button_restart, R.id.button_pause}, type = View.OnClickListener.class)
     private void onclick(final View view) {
-        final File[] imgs = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).listFiles();
+        String dirpath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getParent() + File.separator + "IEZCamera";
+        File dir = new File(dirpath);
+        final File[] imgs = dir.listFiles();
         if (view.getId() == R.id.button_upload) {
             uploadindex = 0;
             if (imgs.length < 20) {
@@ -353,7 +355,8 @@ public class Camera2Fragment extends Fragment {
         @Override
         public void run() {
             Log.d(TAG, "正在保存图片");
-            File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsoluteFile();
+            String dirpath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getParent() + File.separator + "IEZCamera";
+            File dir = new File(dirpath);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
