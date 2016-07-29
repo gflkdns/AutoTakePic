@@ -18,6 +18,8 @@ import java.util.Collections;
  */
 public class AutoPicView extends View {
 
+    private static float currentangle;
+    private static int currentindex;
     boolean idcanpic;
     //角度
     private static final float angle = 15;
@@ -51,11 +53,10 @@ public class AutoPicView extends View {
 
     private float mChaildcx;
     private float mChaildcy;
-
+    public int index;
     private TakePicListener mPicListener = new TakePicListener() {
-
         @Override
-        public void canTakePic() {
+        public void canTakePic(float angle, int index) {
 
         }
 
@@ -240,6 +241,7 @@ public class AutoPicView extends View {
     }
 
     private float x;
+    private long lasttime;
     /**
      * 重力感应的监听器，可用来实时得到手机当前的位置信息
      */
@@ -262,8 +264,11 @@ public class AutoPicView extends View {
                         if (x < OUTPOINTS[i].getEnd() && x > OUTPOINTS[i].getStart() //角度合适
                                 && !OUTPOINTS[i].ispic()) {                            //没有拍过
                             if (idcanpic) {
-                                OUTPOINTS[i].setIspic(true);
-                                mPicListener.canTakePic();
+                                if (System.currentTimeMillis() - lasttime > 1000) {
+                                    OUTPOINTS[i].setIspic(true);
+                                    mPicListener.canTakePic(x, 2);
+                                    lasttime = System.currentTimeMillis();
+                                }
                             }
                         }
                     }
@@ -275,8 +280,11 @@ public class AutoPicView extends View {
                         if (x < INPOINTS[i].getEnd() && x > INPOINTS[i].getStart() //角度合适
                                 && !INPOINTS[i].ispic()) {                            //没有拍过
                             if (idcanpic) {
-                                INPOINTS[i].setIspic(true);
-                                mPicListener.canTakePic();
+                                if (System.currentTimeMillis() - lasttime > 2000) {
+                                    INPOINTS[i].setIspic(true);
+                                    mPicListener.canTakePic(x, 1);
+                                    lasttime = System.currentTimeMillis();
+                                }
                             }
                         }
                     }
@@ -304,7 +312,11 @@ public class AutoPicView extends View {
     }
 
     interface TakePicListener {
-        void canTakePic();
+        /**
+         * @param angle 角度
+         * @param index 第几圈
+         */
+        void canTakePic(float angle, int index);
 
         void yourPhonePerfect();
 

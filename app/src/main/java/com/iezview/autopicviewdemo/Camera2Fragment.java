@@ -56,6 +56,8 @@ import java.util.Collections;
 public class Camera2Fragment extends Fragment {
     private static final String TAG = "Camera2Fragment";
     private static final int SETIMAGE = 1;
+    private static float currentangle;
+    private static int currentindex;
 
 
     AutoPicView picView;
@@ -194,7 +196,7 @@ public class Camera2Fragment extends Fragment {
         final File[] imgs = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).listFiles();
         if (view.getId() == R.id.button_upload) {
             uploadindex = 0;
-            if (imgs.length < 48) {
+            if (imgs.length < 20) {
                 Toast.makeText(getActivity(), "请完成拍摄之后上传！", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -224,6 +226,18 @@ public class Camera2Fragment extends Fragment {
     }
 
     private void uploadimg(final Button view, final File[] imgs, final String url, final String id) {
+        if (uploadindex >= imgs.length) {
+            Button button = view;
+            button.setText("完成");
+            button.setText("完成");
+            for (File file :
+                    imgs) {
+                if (file.isFile()) {
+                    file.delete();
+                }
+            }
+            return;
+        }
         RequestParams parme = new RequestParams(url);
         parme.addBodyParameter("id", id);
         parme.addBodyParameter("file", imgs[uploadindex]);
@@ -231,19 +245,9 @@ public class Camera2Fragment extends Fragment {
             @Override
             public void onSuccess(String result) {
                 Button button = view;
-                button.setText((++uploadindex) + "/" + 48);
+                button.setText((++uploadindex) + "/" + imgs.length);
                 Log.d(TAG, "onSuccess");
-                if (uploadindex == 48) {
-                    button.setText("完成");
-                    for (File file :
-                            imgs) {
-                        if (file.isFile()) {
-                            file.delete();
-                        }
-                    }
-                } else {
-                    uploadimg(view, imgs, url, id);
-                }
+                uploadimg(view, imgs, url, id);
             }
 
             @Override
@@ -299,7 +303,9 @@ public class Camera2Fragment extends Fragment {
         show_tishi.setText("请调整");
         picView.start(new AutoPicView.TakePicListener() {
             @Override
-            public void canTakePic() {
+            public void canTakePic(float angle, int index) {
+                Camera2Fragment.currentangle = angle;
+                Camera2Fragment.currentindex = index;
                 picOnClickListener.onClick(null);
             }
 
@@ -351,7 +357,7 @@ public class Camera2Fragment extends Fragment {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            File file = new File(dir, "15度" + System.currentTimeMillis() + ".jpg");
+            File file = new File(dir, currentindex + "_" + currentangle + ".jpg");
             FileOutputStream outputStream = null;
             try {
                 outputStream = new FileOutputStream(file);
