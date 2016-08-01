@@ -255,8 +255,8 @@ public class AutoPicView extends View {
             mChaildcy = mViewHeight / 2 + (mViewHeight / 2 / 180) * y;
             mChaildcx = mViewWidth / 2 + (mViewWidth / 2 / 180) * z;
             if (mPicListener != null) {
-                //手机与地平面夹角 外圈  67.5 内圈 45 偏移量 5
-                if (-(67.5f - 5) > y && y > -(67.5f + 5)) {
+                //手机与地平面夹角 外圈  90 内圈 45 偏移量 上下偏移量±5
+                if (-(90f - 5) > y && y > -(90f + 5)) {
                     //在可拍摄区间内，且，没有拍摄过
                     mPicListener.yourPhonePerfect();
                     circle_index = 2;
