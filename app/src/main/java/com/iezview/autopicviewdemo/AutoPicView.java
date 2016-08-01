@@ -14,7 +14,7 @@ import android.view.View;
 import java.util.Collections;
 
 /**
- * 拍照引导控件（other）
+ * 拍照引导控件
  */
 public class AutoPicView extends View {
 
@@ -25,14 +25,6 @@ public class AutoPicView extends View {
     private static final float angle = 15;
     private static final Point[] INPOINTS = Point.initPoint(angle, 4);
     private static final Point[] OUTPOINTS = Point.initPoint(angle, 4);
-    /**
-     * 逆时针
-     */
-    public static final int DIRECTION_CONTRAROTATE = 0;
-    /**
-     * 顺时针
-     */
-    public static final int DIRECTION_CLOCKWISEROTATE = 1;
     private SensorManager mSensorManager;
 
     //view的高宽
