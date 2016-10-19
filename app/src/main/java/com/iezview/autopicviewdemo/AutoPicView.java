@@ -11,22 +11,22 @@ import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.view.View;
 
-import java.util.Collections;
-
 /**
  * 拍照引导控件
  */
 public class AutoPicView extends View {
 
-    private static float currentangle;
-    private static int currentindex;
-    boolean idcanpic;
     //角度
     private static final float angle = 15;
     private static final Point[] INPOINTS = Point.initPoint(angle, 4);
     private static final Point[] OUTPOINTS = Point.initPoint(angle, 4);
+    //这个值大于0小于1
+    private static final float smile_circle_radius = 1.5f;
+    private static float currentangle;
+    private static int currentindex;
+    public int index;
+    boolean idcanpic;
     private SensorManager mSensorManager;
-
     //view的高宽
     private int mViewWidth;
     private int mViewHeight;
@@ -42,10 +42,8 @@ public class AutoPicView extends View {
     private Paint linePaint;
     //中间的实心圆
     private Paint sxPaint;
-
     private float mChaildcx;
     private float mChaildcy;
-    public int index;
     private TakePicListener mPicListener = new TakePicListener() {
         @Override
         public void canTakePic(float angle, int index) {
@@ -62,11 +60,73 @@ public class AutoPicView extends View {
 
         }
     };
-    //这个值大于0小于1
-    private static final float smile_circle_radius = 1.5f;
     private String showText = "hello word!";
     private int circle_index;
     private Sensor mSensor;
+    private float x;
+    private long lasttime;
+    /**
+     * 重力感应的监听器，可用来实时得到手机当前的位置信息
+     */
+    SensorEventListener mSensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            x = sensorEvent.values[SensorManager.DATA_X];
+            float y = sensorEvent.values[SensorManager.DATA_Y];
+            float z = sensorEvent.values[SensorManager.DATA_Z];
+
+            setRotation(x);
+            setRotationX(-y);
+            setRotationY(z);
+
+            mChaildcy = mViewHeight / 2 + (mViewHeight / 2 / 180) * y;
+            mChaildcx = mViewWidth / 2 + (mViewWidth / 2 / 180) * z;
+            if (mPicListener != null) {
+                //手机与地平面夹角 外圈  90 内圈 45 偏移量 上下偏移量±5
+                if (-(90f - 5) > y && y > -(90f + 5)) {
+                    //在可拍摄区间内，且，没有拍摄过
+                    mPicListener.yourPhonePerfect();
+                    circle_index = 2;
+                    for (int i = 0; i < OUTPOINTS.length; i++) {
+                        if (x < OUTPOINTS[i].getEnd() && x > OUTPOINTS[i].getStart() //角度合适
+                                && !OUTPOINTS[i].ispic()) {                            //没有拍过
+                            if (idcanpic) {
+                                if (System.currentTimeMillis() - lasttime > 1000) {
+                                    OUTPOINTS[i].setIspic(true);
+                                    mPicListener.canTakePic(x, 2);
+                                    lasttime = System.currentTimeMillis();
+                                }
+                            }
+                        }
+                    }
+                } else if (-(45f - 5) > y && y > -(45f + 5)) {
+                    //在可拍摄区间内，且，没有拍摄过
+                    circle_index = 1;
+                    mPicListener.yourPhonePerfect();
+                    for (int i = 0; i < OUTPOINTS.length; i++) {
+                        if (x < INPOINTS[i].getEnd() && x > INPOINTS[i].getStart() //角度合适
+                                && !INPOINTS[i].ispic()) {                            //没有拍过
+                            if (idcanpic) {
+                                if (System.currentTimeMillis() - lasttime > 2000) {
+                                    INPOINTS[i].setIspic(true);
+                                    mPicListener.canTakePic(x, 1);
+                                    lasttime = System.currentTimeMillis();
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    mPicListener.placeAdjustYourPhone();
+                    circle_index = 0;
+                }
+            }
+            postInvalidate();
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+        }
+    };
 
     public AutoPicView(Context context) {
         this(context, null, 0);
@@ -81,9 +141,11 @@ public class AutoPicView extends View {
         initAutoPic();
         //得到SensorManager对象
         mSensorManager = (SensorManager) this.getContext().getSystemService(Context.SENSOR_SERVICE);
-        mSensorManager.registerListener(mSensorEventListener, mSensor, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(mSensorEventListener, mSensor, SensorManager
+                .SENSOR_DELAY_UI);
         //注册监听器
-        //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+        //  mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor
+        // (Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
     }
 
@@ -135,14 +197,17 @@ public class AutoPicView extends View {
 //            //小点3
 //            canvas.drawCircle(mViewWidth / 2, mViewHeight / 2, 12, linePaint);
 //            //横线
-//            canvas.drawLine(mViewWidth / 4, mViewHeight / 2, mViewWidth / 4 * 3, mViewHeight / 2, linePaint);
+//            canvas.drawLine(mViewWidth / 4, mViewHeight / 2, mViewWidth / 4 * 3, mViewHeight /
+// 2, linePaint);
 //            //竖线
-//            canvas.drawLine(mViewWidth / 2, mViewHeight / 4, mViewWidth / 2, mViewHeight / 4 * 3, linePaint);
+//            canvas.drawLine(mViewWidth / 2, mViewHeight / 4, mViewWidth / 2, mViewHeight / 4 *
+// 3, linePaint);
 //        }
         float pointradius = paintwidth * 10;
         //画一个透明的实心圆
 //        {
-//            float sxRadius = ((mViewHeight > mViewWidth ? mViewWidth : mViewHeight) - pointradius * 2) / 16;
+//            float sxRadius = ((mViewHeight > mViewWidth ? mViewWidth : mViewHeight) -
+// pointradius * 2) / 16;
 //            canvas.drawCircle(mChaildcx, mChaildcy, sxRadius, sxPaint);
 //        }
         //画一个圆
@@ -173,7 +238,8 @@ public class AutoPicView extends View {
                 //画一个圆上的点
                 canvas.rotate(angle * i, cx, cy);
                 canvas.drawCircle(cx, pointradius, pointradius, outPointPaint);
-                canvas.drawCircle(cx, mViewHeight / 2 - (radius / smile_circle_radius), pointradius, inPointPaint);
+                canvas.drawCircle(cx, mViewHeight / 2 - (radius / smile_circle_radius),
+                        pointradius, inPointPaint);
                 canvas.restore();
             }
         }
@@ -189,12 +255,14 @@ public class AutoPicView extends View {
                 }
                 case 1: {
                     // draw in
-                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - (radius / smile_circle_radius), pointradius, linePaint);
+                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - (radius /
+                            smile_circle_radius), pointradius, linePaint);
                     break;
                 }
                 case 2: {
                     // draw out
-                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - radius, pointradius, linePaint);
+                    canvas.drawCircle(mViewWidth / 2, mViewHeight / 2 - radius, pointradius,
+                            linePaint);
                     break;
                 }
             }
@@ -219,7 +287,8 @@ public class AutoPicView extends View {
             //取消重力感应的监听
             mSensorManager.unregisterListener(mSensorEventListener, mSensor);
         } else {
-            mSensorManager.registerListener(mSensorEventListener, mSensor, SensorManager.SENSOR_DELAY_UI);
+            mSensorManager.registerListener(mSensorEventListener, mSensor, SensorManager
+                    .SENSOR_DELAY_UI);
         }
     }
 
@@ -231,67 +300,6 @@ public class AutoPicView extends View {
             point.setIspic(false);
         }
     }
-
-    private float x;
-    private long lasttime;
-    /**
-     * 重力感应的监听器，可用来实时得到手机当前的位置信息
-     */
-    SensorEventListener mSensorEventListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent sensorEvent) {
-            x = sensorEvent.values[SensorManager.DATA_X];
-            float y = sensorEvent.values[SensorManager.DATA_Y];
-            float z = sensorEvent.values[SensorManager.DATA_Z];
-
-            mChaildcy = mViewHeight / 2 + (mViewHeight / 2 / 180) * y;
-            mChaildcx = mViewWidth / 2 + (mViewWidth / 2 / 180) * z;
-            if (mPicListener != null) {
-                //手机与地平面夹角 外圈  90 内圈 45 偏移量 上下偏移量±5
-                if (-(90f - 5) > y && y > -(90f + 5)) {
-                    //在可拍摄区间内，且，没有拍摄过
-                    mPicListener.yourPhonePerfect();
-                    circle_index = 2;
-                    for (int i = 0; i < OUTPOINTS.length; i++) {
-                        if (x < OUTPOINTS[i].getEnd() && x > OUTPOINTS[i].getStart() //角度合适
-                                && !OUTPOINTS[i].ispic()) {                            //没有拍过
-                            if (idcanpic) {
-                                if (System.currentTimeMillis() - lasttime > 1000) {
-                                    OUTPOINTS[i].setIspic(true);
-                                    mPicListener.canTakePic(x, 2);
-                                    lasttime = System.currentTimeMillis();
-                                }
-                            }
-                        }
-                    }
-                } else if (-(45f - 5) > y && y > -(45f + 5)) {
-                    //在可拍摄区间内，且，没有拍摄过
-                    circle_index = 1;
-                    mPicListener.yourPhonePerfect();
-                    for (int i = 0; i < OUTPOINTS.length; i++) {
-                        if (x < INPOINTS[i].getEnd() && x > INPOINTS[i].getStart() //角度合适
-                                && !INPOINTS[i].ispic()) {                            //没有拍过
-                            if (idcanpic) {
-                                if (System.currentTimeMillis() - lasttime > 2000) {
-                                    INPOINTS[i].setIspic(true);
-                                    mPicListener.canTakePic(x, 1);
-                                    lasttime = System.currentTimeMillis();
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    mPicListener.placeAdjustYourPhone();
-                    circle_index = 0;
-                }
-            }
-            postInvalidate();
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int i) {
-        }
-    };
 
     public boolean pause() {
 

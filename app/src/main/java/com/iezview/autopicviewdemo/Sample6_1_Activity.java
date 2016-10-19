@@ -5,22 +5,31 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-import org.xutils.x;
-
-public class MainActivity extends Activity {
-    private static final String TAG = "myupload";
+public class Sample6_1_Activity extends Activity {
     private MySurfaceView mGLSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         // 设置为全屏
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        // 切换到主界面
         setContentView(R.layout.activity_main);
-        x.Ext.init(getApplication());
-        x.view().inject(this);
+        // 初始化GLSurfaceView
+        mGLSurfaceView = (MySurfaceView) findViewById(R.id.surfaceview);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGLSurfaceView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mGLSurfaceView.onPause();
     }
 }

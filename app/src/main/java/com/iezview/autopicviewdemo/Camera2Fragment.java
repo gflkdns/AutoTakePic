@@ -89,6 +89,14 @@ public class Camera2Fragment extends Fragment {
 
         }
     };
+    private ImageReader.OnImageAvailableListener onImageAvaiableListener = new ImageReader
+            .OnImageAvailableListener() {
+        @Override
+        public void onImageAvailable(ImageReader imageReader) {
+            mHandler.post(new ImageSaver(imageReader.acquireNextImage()));
+        }
+    };
+    private Size mPreViewSize;
     //打开相机时候的监听器，通过他可以得到相机实例，这个实例可以创建请求建造者
     private CameraDevice.StateCallback cameraOpenCallBack = new CameraDevice.StateCallback() {
         @Override
@@ -116,13 +124,6 @@ public class Camera2Fragment extends Fragment {
             Log.d(TAG, "相机打开失败");
         }
     };
-    private ImageReader.OnImageAvailableListener onImageAvaiableListener = new ImageReader.OnImageAvailableListener() {
-        @Override
-        public void onImageAvailable(ImageReader imageReader) {
-            mHandler.post(new ImageSaver(imageReader.acquireNextImage()));
-        }
-    };
-    private Size mPreViewSize;
     //预览图显示控件的监听器，可以监听这个surface的状态
     private TextureView.SurfaceTextureListener mSurfacetextlistener = new TextureView.SurfaceTextureListener() {
         @Override
@@ -190,6 +191,7 @@ public class Camera2Fragment extends Fragment {
         }
     };
     private int uploadindex;
+    private MySurfaceView mGLSurfaceView;
 
     @Event(value = {R.id.button_upload, R.id.button_restart, R.id.button_pause}, type = View.OnClickListener.class)
     private void onclick(final View view) {
@@ -302,6 +304,8 @@ public class Camera2Fragment extends Fragment {
         //设置点击拍照的监听
         picView = (AutoPicView) v.findViewById(R.id.autopicview);
         show_tishi = (TextView) v.findViewById(R.id.show_tishi);
+        // 初始化GLSurfaceView
+        mGLSurfaceView = (MySurfaceView) v.findViewById(R.id.surfaceview);
         show_tishi.setText("请调整");
         picView.start(new AutoPicView.TakePicListener() {
             @Override
@@ -322,6 +326,18 @@ public class Camera2Fragment extends Fragment {
             }
         });
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mGLSurfaceView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mGLSurfaceView.onPause();
     }
 
     @Override
