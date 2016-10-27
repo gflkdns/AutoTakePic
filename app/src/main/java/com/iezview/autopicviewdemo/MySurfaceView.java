@@ -29,7 +29,7 @@ class MySurfaceView extends GLSurfaceView {
         super(context, attrs);
         setZOrderOnTop(true);
         SurfaceHolder mSurfacehoulder = getHolder();
-        setEGLConfigChooser(8, 8, 8, 8, 0, 8);
+        setEGLConfigChooser(8, 8, 8, 8, 16, 8);
         mSurfacehoulder.setFormat(PixelFormat.TRANSLUCENT);
         this.setEGLContextClientVersion(2); //设置使用OPENGL ES2.0
         mRenderer = new SceneRenderer();    //创建场景渲染器
