@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import org.xutils.view.annotation.ViewInject;
 import org.xutils.x;
 
 public class MainActivity extends Activity {
     private static final String TAG = "myupload";
+    @ViewInject(R.id.angleindicater)
+    AngleIndicater angleIndicater;
     private MySurfaceView mGLSurfaceView;
 
     @Override
@@ -22,5 +25,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         x.Ext.init(getApplication());
         x.view().inject(this);
+        angleIndicater.addIndicater(new AngleIndicater.Indicater(-50, -40));
     }
 }

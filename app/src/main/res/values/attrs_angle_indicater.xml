@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="AngleIndicater">
+        <attr name="ballColor" format="color|reference"/>
+        <attr name="indicaterColor" format="color|reference"/>
+        <attr name="ballSelectColor" format="color|reference"/>
+        <attr name="indicaterSelectColor" format="color|reference"/>
+    </declare-styleable>
+</resources>
