@@ -25,9 +25,12 @@ public class AngleIndicater extends View {
     private int mIndicaterColor = Color.WHITE; // 框框的颜色
     private int mBallSelectColor = Color.WHITE; //不安分的小球的颜色
     private int mIndiSelectcaterColor = Color.WHITE; // 框框的颜色
-    private int mWidth;
+    private int mWidth;//控件宽高
     private int mHeight;
-    private float y;
+    private float y;//俯仰角，来自传感器
+    private int selectIndex = -1;//当前小球经过的index
+    //指示范围数组
+    private List<Indicater> mIndicaters;
     /**
      * 重力感应的监听器，可用来实时得到手机当前的位置信息
      */
@@ -38,6 +41,16 @@ public class AngleIndicater extends View {
             float x = sensorEvent.values[SensorManager.DATA_X];
             y = sensorEvent.values[SensorManager.DATA_Y];
             float z = sensorEvent.values[SensorManager.DATA_Z];
+            boolean flog = false;
+            for (Indicater indicater : mIndicaters) {
+                if (y <= indicater.getEnd() && y >= indicater.getStart()) {
+                    selectIndex = mIndicaters.indexOf(indicater);
+                    flog = true;
+                }
+            }
+            if (!flog) {
+                selectIndex = -1;
+            }
             postInvalidate();
         }
 
@@ -45,8 +58,6 @@ public class AngleIndicater extends View {
         public void onAccuracyChanged(Sensor sensor, int i) {
         }
     };
-    //指示范围数组
-    private List<Indicater> mIndicaters;
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private Paint ballPaint, indicaterPaint;
@@ -123,15 +134,23 @@ public class AngleIndicater extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         float cx = mWidth / 2;
-        float cy = (float) (mHeight * (1 + Math.sin((Math.PI / 180) * y)));
-        canvas.drawCircle(cx, cy, cx, ballPaint);
+        float cy = mHeight * (1 + 1 / 90f * y);
         for (Indicater indicater : mIndicaters) {
             float left = 0;
-            float top = (float) (mHeight * (1 + Math.sin((Math.PI / 180) * indicater.getStart())));
+            float top = mHeight * (1 + 1 / 90f * indicater.getStart());
             float right = mWidth;
-            float bottom = (float) (mHeight * (1 + Math.sin((Math.PI / 180) * indicater.getEnd())));
+            float bottom = mHeight * (1 + 1 / 90f * indicater.getEnd());
+            if (selectIndex == mIndicaters.indexOf(indicater))
+                indicaterPaint.setColor(mIndiSelectcaterColor);
+            else
+                indicaterPaint.setColor(mIndicaterColor);
             canvas.drawRoundRect(left, top, right, bottom, cx, cx, indicaterPaint);
         }
+        if (selectIndex != -1)
+            ballPaint.setColor(mBallSelectColor);
+        else
+            ballPaint.setColor(mBallColor);
+        canvas.drawCircle(cx, cy, cx, ballPaint);
     }
 
     @Override

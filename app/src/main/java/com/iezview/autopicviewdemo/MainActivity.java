@@ -26,5 +26,6 @@ public class MainActivity extends Activity {
         x.Ext.init(getApplication());
         x.view().inject(this);
         angleIndicater.addIndicater(new AngleIndicater.Indicater(-50, -40));
+        angleIndicater.addIndicater(new AngleIndicater.Indicater(-75, -65));
     }
 }
