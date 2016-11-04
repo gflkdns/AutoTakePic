@@ -6,7 +6,9 @@
 
 ![image](preimg.png)
 
-Add it in your root build.gradle at the end of repositories:
+如何使用它？
+
+第一步：..\YourProject\build.gradle
 
 	allprojects {
 		repositories {
@@ -14,11 +16,10 @@ Add it in your root build.gradle at the end of repositories:
 			maven { url "https://jitpack.io" }
 		}
 	}
-Step 2. Add the dependency
+第二步：..\YourProject\app\build.gradle
 
 	dependencies {
-	        compile 'com.github.MiQt:AutoTakePic:v1.3.0'
+	        compile 'com.github.MiQt:AutoTakePic:eede92a542'
 	}
-Share this release:
 
 [![](https://jitpack.io/v/MiQt/AutoTakePic.svg)](https://jitpack.io/#MiQt/AutoTakePic)
