@@ -75,7 +75,7 @@ public class AutoPicView extends View {
             float y = sensorEvent.values[SensorManager.DATA_Y];
             float z = sensorEvent.values[SensorManager.DATA_Z];
 
-            setRotation(x);
+            setRotation(-x-180);
             setRotationX(-y);
             setRotationY(z);
 
