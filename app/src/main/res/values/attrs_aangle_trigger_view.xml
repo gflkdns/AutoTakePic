@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="AngleTriggerView">
+        <attr name="angle" format="float|reference"/>
+        <attr name="offset" format="float|reference"/>
+        <attr name="startangle" format="float|reference"/>
+        <attr name="endangle" format="float|reference"/>
+    </declare-styleable>
+</resources>
