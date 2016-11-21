@@ -15,6 +15,23 @@ public class TestActivity extends AppCompatActivity {
         AngleTriggerView view1 = (AngleTriggerView) findViewById(R.id.view1);
         AngleTriggerView view2 = (AngleTriggerView) findViewById(R.id.view2);
         AngleTriggerView view3 = (AngleTriggerView) findViewById(R.id.view3);
+        view1.setTakePicListener(new AngleTriggerView.TakePicListener() {
+            @Override
+            public boolean canTakePic(float angle) {
 
+                return true;
+            }
+
+            @Override
+            public void yourPhonePerfect() {
+
+            }
+
+            @Override
+            public void placeAdjustYourPhone() {
+
+            }
+        });
+        view1.start();
     }
 }

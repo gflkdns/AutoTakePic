@@ -33,7 +33,21 @@
         </activity>
         <activity android:name=".TestActivity">
             <intent-filter>
-                <action android:name="android.intent.action.ALL_APPS"></action>
+                <action android:name="android.intent.action.ALL_APPS"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".vlayout.BallActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.ALL_APPS"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".circleview.TestActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.ALL_APPS"/>
             </intent-filter>
         </activity>
     </application>

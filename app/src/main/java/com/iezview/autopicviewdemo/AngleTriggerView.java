@@ -89,7 +89,10 @@ public class AngleTriggerView extends View {
                                 && !OUTPOINTS[i].ispic()) {                            //没有拍过
                             if (idcanpic) {
                                 if (System.currentTimeMillis() - lasttime > 1000) {
-                                    OUTPOINTS[i].setIspic(mPicListener.canTakePic(x));
+                                    OUTPOINTS[i].setIspic(  mPicListener.canTakePic(x));
+                                    float a=OUTPOINTS[i].getEnd();
+                                    float b=OUTPOINTS[i].getStart();
+                                    a=a+b;
                                     lasttime = System.currentTimeMillis();
                                 }
                             }
@@ -142,7 +145,7 @@ public class AngleTriggerView extends View {
         angle = a.getFloat(
                 R.styleable.AngleTriggerView_angle, angle);
         offset = a.getFloat(
-                R.styleable.AngleTriggerView_angle, offset);
+                R.styleable.AngleTriggerView_offset, offset);
         startangle = a.getFloat(
                 R.styleable.AngleTriggerView_startangle, 0);
         endangle = a.getFloat(
