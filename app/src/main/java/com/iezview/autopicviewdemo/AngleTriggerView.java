@@ -89,10 +89,7 @@ public class AngleTriggerView extends View {
                                 && !OUTPOINTS[i].ispic()) {                            //没有拍过
                             if (idcanpic) {
                                 if (System.currentTimeMillis() - lasttime > 1000) {
-                                    OUTPOINTS[i].setIspic(  mPicListener.canTakePic(x));
-                                    float a=OUTPOINTS[i].getEnd();
-                                    float b=OUTPOINTS[i].getStart();
-                                    a=a+b;
+                                    OUTPOINTS[i].setIspic(mPicListener.canTakePic(x));
                                     lasttime = System.currentTimeMillis();
                                 }
                             }
